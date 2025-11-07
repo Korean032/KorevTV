@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=https://schema.zeabur.app/template.json
+apiVersion: zeabur.com/v1
+kind: Template
+metadata:
+  name: KorevTV
+spec:
+  description: 开箱即用的、跨平台的影视聚合播放器支持（YouTube，网盘，后续支持更多）
+  coverImage: https://raw.githubusercontent.com/Korean032/KorevTV/refs/heads/main/public/logo.png
+  icon: https://raw.githubusercontent.com/Korean032/KorevTV/refs/heads/main/public/logo.png
+  variables:
+    - key: USERNAME
+      type: STRING
+      name: 站长账号
+      description: 站长账户登录用户名
+    - key: PASSWORD
+      type: STRING
+      name: 站长密码
+      description: 站长账户登录密码，请配置强密码
+  tags:
+    - Website
+    - Entertainment
+    - Media
+  readme: |-
+    # KorevTV
+    KorevTV 是一个开箱即用的、跨平台的影视聚合播放器。它基于 Next.js 14 + Tailwind CSS + TypeScript 构建，
+    支持多资源搜索、在线播放、收藏同步、播放记录、云端存储，让你可以随时随地畅享海量免费影视内容。
+
+    - https://github.com/Korean032/KorevTV
+
+    本项目采用 CC BY-NC-SA 4.0 协议，禁止商业用途。
+  services:
+    - name: apachekvrocks
+      icon: https://avatars.githubusercontent.com/u/47359?s=200&v=4
+      template: PREBUILT_V2
+      spec:
+        source:
+          image: apache/kvrocks
+        ports:
+          - id: database
+            port: 6666
+            type: TCP
+        volumes:
+          - id: data
+            dir: /var/lib/kvrocks/db
+    - name: KorevTV
+      icon: https://raw.githubusercontent.com/Korean032/KorevTV/refs/heads/main/public/logo.png
+      template: PREBUILT_V2
+      spec:
+        source:
+          image: ghcr.io/korean032/korevtv:latest
+        ports:
+          - id: web
+            port: 3000
+            type: HTTP
+        env:
+          KVROCKS_URL:
+            default: redis://apachekvrocks:6666
+          NEXT_PUBLIC_STORAGE_TYPE:
+            default: kvrocks
+          NEXT_PUBLIC_SITE_NAME:
+            default: KorevTV
+          ANNOUNCEMENT:
+            default: 欢迎使用 KorevTV
+          USERNAME:
+            default: ${USERNAME}
+          PASSWORD:
+            default: ${PASSWORD}
+          NEXT_PUBLIC_DOUBAN_PROXY_TYPE:
+            default: direct
+          NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE:
+            default: direct
