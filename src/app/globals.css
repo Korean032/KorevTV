@@ -73,12 +73,7 @@ body {
 
 html:not(.dark) body {
   /* KorevTV 三色渐变：#FFD6D6 → #A4CBFF → #B9FFF8 */
-  background: linear-gradient(
-    180deg,
-    #FFD6D6 0%,
-    #A4CBFF 45%,
-    #B9FFF8 100%
-  );
+  background: linear-gradient(180deg, #ffd6d6 0%, #a4cbff 45%, #b9fff8 100%);
   background-attachment: fixed;
 }
 
@@ -341,7 +336,7 @@ div[data-media-provider] video {
   }
 
   /* 防止进度条拖拽时弹窗干扰 */
-  .artplayer[data-dragging="true"] .artplayer-plugin-danmuku .apd-config-panel {
+  .artplayer[data-dragging='true'] .artplayer-plugin-danmuku .apd-config-panel {
     opacity: 0 !important;
     pointer-events: none !important;
     visibility: hidden !important;
