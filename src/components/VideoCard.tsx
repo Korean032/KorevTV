@@ -1165,7 +1165,7 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
 
             <LiquidGlassContainer
               className='peer inline-block w-full px-2 py-1'
-              roundedClass='rounded-lg'
+              roundedClass='rounded-2xl'
               intensity='medium'
               shadow='md'
               border='subtle'
