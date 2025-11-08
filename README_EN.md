@@ -51,6 +51,8 @@ This project is a deeply customized version based on **MoonTV**, continuously de
 - **Multiple Card Types**: Video recommendations, YouTube videos, video link parsing
 - **TMDB Actor Search**: Complete actor search, filtering, and caching
 - **Release Calendar & Upcoming Releases**: Upcoming content preview and tracking, support favoriting upcoming releases, automatically becomes playable after release
+- **Personalized “For You”**: Combines Continue Watching and Favorites; scored by adjustable weights (favorites/recency/unfinished/decay). New “For You” row on Home with sliders to tune preferences
+- **Recently Trending (Aggregate)**: Option to aggregate popular sections into a single “Trending” row; can later hook into site-wide play stats as the heat source
 
 #### 💬 Danmaku Ecosystem
 
@@ -77,6 +79,7 @@ This project is a deeply customized version based on **MoonTV**, continuously de
 - **Live DVR Detection**: Auto-detect DVR/timeshift support after player loads, display seekable time range, one-click enable progress bar mode
 - **Mobile Optimization**: Volume control hover optimization, responsive controller, danmaku config desktop-only display
 - **Episode Group Scrolling**: Playback page episode selection supports scroll pagination for smooth browsing
+- **Watch Party**: Room code & invite link, member list & chat, initial sync to host on join, follow-host toggle; mobile chat default collapsed; SSE broadcasting for near-real-time sync
 
 #### 📱 Interface Experience Optimization
 
@@ -91,6 +94,7 @@ This project is a deeply customized version based on **MoonTV**, continuously de
 - **User Menu Features**: Update reminders, continue watching (with new episode badges), favorites quick access, TVBox settings integration
 - **Login Interface Modernization**: Dynamic random wallpapers, gradient cards, responsive design
 - **Back to Top Button**: Quick return for long pages like release calendar
+- **Liquid Glass Buttons**: Hero banner navigation and row scroll arrows use Liquid Glass visual for a unified, premium look
 
 #### 🔐 Security & Storage
 
