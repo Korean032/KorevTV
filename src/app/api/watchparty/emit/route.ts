@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 type Client = {
   room: string;
@@ -83,6 +84,19 @@ export async function POST(req: NextRequest) {
 // 提供一个 GET，避免构建阶段对该路径的 GET 探测失败
 export async function GET() {
   return NextResponse.json({ ok: true, message: 'watchparty emit endpoint (POST to broadcast events)' });
+}
+
+export async function HEAD() {
+  return new Response(null, { status: 200 });
+}
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Allow': 'GET,HEAD,OPTIONS,POST',
+    },
+  });
 }
     if (event.type === 'presence' && event.payload?.action === 'leave') {
       state.members.delete(event.sender);
