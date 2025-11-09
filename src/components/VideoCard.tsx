@@ -139,7 +139,18 @@ const VideoCard = forwardRef<VideoCardHandle, VideoCardProps>(function VideoCard
     if (v === 'show') return 'variety';
     return v;
   };
-  const normalizedType = normalizeType(derivedType);
+  const normalizedType = (() => {
+    // 直接使用传入类型或搜索类型
+    let v = normalizeType(type || actualSearchType);
+    // 兜底：番剧标记
+    if (!v && isBangumi) v = 'anime';
+    // 兜底：按集数推断
+    if (!v) {
+      if (actualEpisodes && actualEpisodes > 1) v = 'tv';
+      else if (actualEpisodes === 1) v = 'movie';
+    }
+    return v;
+  })();
   const typeBadge = (() => {
     switch (normalizedType) {
       case 'movie':
