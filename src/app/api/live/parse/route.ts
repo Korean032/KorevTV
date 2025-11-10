@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+
 import { parseUniversalPlaylist } from '@/lib/live';
 
 export const dynamic = 'force-dynamic';

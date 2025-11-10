@@ -2,21 +2,14 @@
 
 'use client';
 
-import { Suspense, useEffect, useRef, useState } from 'react';
-
 import Hls from 'hls.js';
 import { Heart, Radio, RefreshCw, Search, Tv, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useRef, useState } from 'react';
 
 import {
   debounce,
 } from '@/lib/channel-search';
-import {
-  isMobile,
-  isTablet, 
-  isSafari,
-  devicePerformance
-} from '@/lib/utils';
 import {
   deleteFavorite,
   generateStorageKey,
@@ -25,6 +18,10 @@ import {
   subscribeToDataUpdates,
 } from '@/lib/db.client';
 import { parseCustomTimeFormat } from '@/lib/time';
+import {
+  devicePerformance,
+  isMobile,
+  isSafari} from '@/lib/utils';
 
 import EpgScrollableRow from '@/components/EpgScrollableRow';
 import PageLayout from '@/components/PageLayout';
@@ -128,6 +125,12 @@ function LivePageClient() {
 
   // 过滤后的频道列表
   const [filteredChannels, setFilteredChannels] = useState<LiveChannel[]>([]);
+
+  // 影院模式与信息徽章
+  const [theaterMode, setTheaterMode] = useState<boolean>(false);
+  const [qualityInfo, setQualityInfo] = useState<{ height?: number; bitrate?: number } | null>(null);
+  const [netSpeedMbps, setNetSpeedMbps] = useState<number | null>(null);
+  const [showShortcutHelp, setShowShortcutHelp] = useState<boolean>(false);
 
   // 搜索相关状态
   const [searchQuery, setSearchQuery] = useState('');
@@ -983,6 +986,12 @@ function LivePageClient() {
       
       // 低延迟模式 - 仅在高性能非移动设备上启用 (源码默认为true)
       lowLatencyMode: !isMobile && devicePerformance === 'high',
+
+      // 直播同步窗口与延迟目标（提升跟直播的同步性）
+      // 参考 hls.js v1.x 可用配置：在低延迟网络下改善首帧与追帧稳定性
+      liveSyncDuration: 3,           // 目标同步到直播尾部约 3s
+      liveMaxLatencyDuration: 10,    // 容忍最大直播延迟窗口 10s
+      liveSeekableWindow: 60,        // 保留 60s 可回退的窗口，避免频繁卡顿
       
       // 缓冲管理优化 - 参考 hls.js 源码默认值进行设备优化
       backBufferLength: devicePerformance === 'low' ? 30 : Infinity, // 源码默认 Infinity
@@ -1006,8 +1015,8 @@ function LivePageClient() {
       maxLoadingDelay: 4, // 源码默认
       
       // 直播流特殊配置
-      startLevel: undefined, // 源码默认，自动选择起始质量
-      capLevelToPlayerSize: false, // 源码默认
+      startLevel: -1,               // 自动选择起始质量（-1等价于undefined，但更明确）
+      capLevelToPlayerSize: true,   // 限制最高质量不超过播放器尺寸，减少无效超清导致的卡顿
       
       // 渐进式加载 (直播流建议关闭)
       progressive: false,
@@ -1182,6 +1191,7 @@ function LivePageClient() {
         if (loadTime > 0 && data.frag.stats.loaded > 0) {
           const throughputBps = (data.frag.stats.loaded * 8 * 1000) / loadTime; // bits per second
           const throughputMbps = throughputBps / 1000000;
+          setNetSpeedMbps(throughputMbps);
           if (process.env.NODE_ENV === 'development') {
             console.log(`Fragment loaded: ${loadTime.toFixed(2)}ms, size: ${data.frag.stats.loaded}B, throughput: ${throughputMbps.toFixed(2)} Mbps`);
           }
@@ -1202,6 +1212,12 @@ function LivePageClient() {
 
     // 监听质量切换
     hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
+      try {
+        const level = hls.levels?.[data.level];
+        if (level) {
+          setQualityInfo({ height: level.height, bitrate: level.bitrate });
+        }
+      } catch {}
       if (process.env.NODE_ENV === 'development') {
         console.log(`Quality switched to level ${data.level}`);
       }
@@ -1448,6 +1464,33 @@ function LivePageClient() {
           e.preventDefault();
         }
       }
+
+      // t 键 = 影院模式
+      if (e.key.toLowerCase() === 't') {
+        setTheaterMode(prev => !prev);
+        e.preventDefault();
+      }
+
+      // h 键 = 显示/隐藏频道列表
+      if (e.key.toLowerCase() === 'h') {
+        setIsChannelListCollapsed(prev => !prev);
+        e.preventDefault();
+      }
+
+      // m 键 = 静音/恢复
+      if (e.key.toLowerCase() === 'm') {
+        if (artPlayerRef.current) {
+          artPlayerRef.current.muted = !artPlayerRef.current.muted;
+          artPlayerRef.current.notice.show = artPlayerRef.current.muted ? '已静音' : '已恢复音量';
+          e.preventDefault();
+        }
+      }
+
+      // ? 键 = 快捷键帮助
+      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        setShowShortcutHelp(true);
+        e.preventDefault();
+      }
     };
 
     document.addEventListener('keydown', handleKeyboardShortcuts);
@@ -1570,7 +1613,7 @@ function LivePageClient() {
 
   return (
     <PageLayout activePath='/live'>
-      <div className='flex flex-col gap-3 py-4 px-5 lg:px-[3rem] 2xl:px-20'>
+      <div className={`flex flex-col gap-3 ${theaterMode ? 'py-2 px-2 lg:px-6 2xl:px-10' : 'py-4 px-5 lg:px-[3rem] 2xl:px-20'}`}>
         {/* 第一行：页面标题 */}
         <div className='py-1'>
           <h1 className='text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 max-w-[80%]'>
@@ -1595,8 +1638,28 @@ function LivePageClient() {
 
         {/* 第二行：播放器和频道列表 */}
         <div className='space-y-2'>
-          {/* 折叠控制 - 仅在 lg 及以上屏幕显示 */}
-          <div className='hidden lg:flex justify-end'>
+          {/* 快捷键帮助面板 */}
+          {showShortcutHelp && (
+            <div className='mb-2 px-4 py-3 rounded-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/60 dark:border-gray-700/60 shadow-sm text-sm text-gray-700 dark:text-gray-200'>
+              <div className='flex justify-between items-center mb-1'>
+                <span className='font-semibold'>快捷键</span>
+                <button className='text-gray-500 hover:text-gray-700 dark:hover:text-gray-300' onClick={() => setShowShortcutHelp(false)}>
+                  关闭
+                </button>
+              </div>
+              <div className='grid grid-cols-2 gap-x-6 gap-y-1'>
+                <div><span className='font-mono'>Space</span> 播放/暂停</div>
+                <div><span className='font-mono'>F</span> 全屏切换</div>
+                <div><span className='font-mono'>↑/↓</span> 音量增减</div>
+                <div><span className='font-mono'>M</span> 静音/恢复</div>
+                <div><span className='font-mono'>T</span> 影院模式</div>
+                <div><span className='font-mono'>H</span> 显示/隐藏频道列表</div>
+                <div><span className='font-mono'>?</span> 显示本帮助</div>
+              </div>
+            </div>
+          )}
+          {/* 视图控制 - 仅在 lg 及以上屏幕显示 */}
+          <div className='hidden lg:flex justify-end gap-2'>
             <button
               onClick={() =>
                 setIsChannelListCollapsed(!isChannelListCollapsed)
@@ -1632,19 +1695,50 @@ function LivePageClient() {
                   }`}
               ></div>
             </button>
+
+            {/* 影院模式切换 */}
+            <button
+              onClick={() => setTheaterMode(prev => !prev)}
+              className={`group relative flex items-center space-x-1.5 px-3 py-1.5 rounded-full backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all duration-200 ${theaterMode ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200'}`}
+              title={theaterMode ? '退出影院模式' : '进入影院模式'}
+            >
+              <svg className='w-3.5 h-3.5' fill='currentColor' viewBox='0 0 24 24'>
+                <path d='M4 6a2 2 0 012-2h12a2 2 0 012 2v3H4V6zm0 5h20v7a2 2 0 01-2 2H6a2 2 0 01-2-2v-7z' />
+              </svg>
+              <span className='text-xs font-medium'>
+                {theaterMode ? '影院模式' : '标准模式'}
+              </span>
+            </button>
           </div>
 
-          <div className={`grid gap-4 lg:h-[500px] xl:h-[650px] 2xl:h-[750px] transition-all duration-300 ease-in-out ${isChannelListCollapsed
+          <div className={`grid gap-4 ${theaterMode ? 'lg:h-[75vh] xl:h-[80vh] 2xl:h-[85vh]' : 'lg:h-[500px] xl:h-[650px] 2xl:h-[750px]'} transition-all duration-300 ease-in-out ${(isChannelListCollapsed || theaterMode)
             ? 'grid-cols-1'
             : 'grid-cols-1 md:grid-cols-4'
             }`}>
             {/* 播放器 */}
-            <div className={`h-full transition-all duration-300 ease-in-out ${isChannelListCollapsed ? 'col-span-1' : 'md:col-span-3'}`}>
+            <div className={`h-full transition-all duration-300 ease-in-out ${(isChannelListCollapsed || theaterMode) ? 'col-span-1' : 'md:col-span-3'}`}>
               <div className='relative w-full h-[300px] lg:h-full'>
                 <div
                   ref={artRef}
                   className='bg-black w-full h-full rounded-xl overflow-hidden shadow-lg border border-white/0 dark:border-white/30'
                 ></div>
+
+                {/* 清晰度与网速徽章 */}
+                {qualityInfo && (
+                  <div className='absolute top-3 right-3 z-[560]'>
+                    <div className='flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-sm text-xs font-medium text-gray-700 dark:text-gray-200'>
+                      <span>{qualityInfo.height ? `${qualityInfo.height}p` : '—'}</span>
+                      <span className='text-gray-400'>·</span>
+                      <span>{qualityInfo.bitrate ? `${(qualityInfo.bitrate / 1000000).toFixed(1)} Mbps` : '—'}</span>
+                      {typeof netSpeedMbps === 'number' && (
+                        <>
+                          <span className='text-gray-400'>·</span>
+                          <span className='text-gray-600 dark:text-gray-300'>Net {(netSpeedMbps).toFixed(1)} Mbps</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* 不支持的直播类型提示 */}
                 {unsupportedType && (
@@ -1748,7 +1842,7 @@ function LivePageClient() {
             </div>
 
             {/* 频道列表 */}
-            <div className={`h-[300px] lg:h-full md:overflow-hidden transition-all duration-300 ease-in-out ${isChannelListCollapsed
+            <div className={`h-[300px] lg:h-full md:overflow-hidden transition-all duration-300 ease-in-out ${(isChannelListCollapsed || theaterMode)
               ? 'md:col-span-1 lg:hidden lg:opacity-0 lg:scale-95'
               : 'md:col-span-1 lg:opacity-100 lg:scale-100'
               }`}>
@@ -1919,22 +2013,38 @@ function LivePageClient() {
                           );
                         })
                       ) : (
-                        <div className='flex flex-col items-center justify-center py-12 text-center'>
-                          <div className='relative mb-6'>
-                            <div className='w-20 h-20 bg-gradient-to-br from-gray-100 to-slate-200 dark:from-gray-700 dark:to-slate-700 rounded-2xl flex items-center justify-center shadow-lg'>
-                              <Tv className='w-10 h-10 text-gray-400 dark:text-gray-500' />
-                            </div>
-                            {/* 装饰小点 */}
-                            <div className='absolute -top-1 -right-1 w-3 h-3 bg-blue-400 rounded-full animate-ping'></div>
-                            <div className='absolute -bottom-1 -left-1 w-2 h-2 bg-purple-400 rounded-full animate-pulse'></div>
+                        Object.keys(groupedChannels).length === 0 && !isSwitchingSource ? (
+                          <div className='space-y-2'>
+                            {Array.from({ length: 8 }).map((_, i) => (
+                              <div key={i} className='w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm shadow-sm'>
+                                <div className='flex items-center gap-3'>
+                                  <div className='w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse' />
+                                  <div className='flex-1 min-w-0'>
+                                    <div className='h-3 w-2/3 rounded bg-gray-200 dark:bg-gray-700 animate-pulse mb-2' />
+                                    <div className='h-2 w-1/3 rounded bg-gray-200 dark:bg-gray-700 animate-pulse' />
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                          <p className='text-base font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-                            暂无可用频道
-                          </p>
-                          <p className='text-sm text-gray-500 dark:text-gray-400'>
-                            请选择其他直播源或稍后再试
-                          </p>
-                        </div>
+                        ) : (
+                          <div className='flex flex-col items-center justify-center py-12 text-center'>
+                            <div className='relative mb-6'>
+                              <div className='w-20 h-20 bg-gradient-to-br from-gray-100 to-slate-200 dark:from-gray-700 dark:to-slate-700 rounded-2xl flex items-center justify-center shadow-lg'>
+                                <Tv className='w-10 h-10 text-gray-400 dark:text-gray-500' />
+                              </div>
+                              {/* 装饰小点 */}
+                              <div className='absolute -top-1 -right-1 w-3 h-3 bg-blue-400 rounded-full animate-ping'></div>
+                              <div className='absolute -bottom-1 -left-1 w-2 h-2 bg-purple-400 rounded-full animate-pulse'></div>
+                            </div>
+                            <p className='text-base font-semibold text-gray-700 dark:text-gray-300 mb-2'>
+                              暂无可用频道
+                            </p>
+                            <p className='text-sm text-gray-500 dark:text-gray-400'>
+                              请选择其他直播源或稍后再试
+                            </p>
+                          </div>
+                        )
                       )}
                     </div>
                       </>

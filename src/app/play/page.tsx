@@ -4,7 +4,6 @@
 
 import Hls from 'hls.js';
 import { ChevronUp,Heart } from 'lucide-react';
-import LiquidGlassContainer from '@/components/LiquidGlassContainer';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
@@ -27,6 +26,7 @@ import { SearchResult } from '@/lib/types';
 import { getVideoResolutionFromM3u8, processImageUrl } from '@/lib/utils';
 
 import EpisodeSelector from '@/components/EpisodeSelector';
+import LiquidGlassContainer from '@/components/LiquidGlassContainer';
 import NetDiskSearchResults from '@/components/NetDiskSearchResults';
 import PageLayout from '@/components/PageLayout';
 import SkipController from '@/components/SkipController';
@@ -352,6 +352,11 @@ function PlayPageClient() {
   // 折叠状态（仅在 lg 及以上屏幕有效）
   const [isEpisodeSelectorCollapsed, setIsEpisodeSelectorCollapsed] =
     useState(false);
+
+  // 影院模式与信息徽章状态
+  const [theaterMode, setTheaterMode] = useState(false);
+  const [qualityInfo, setQualityInfo] = useState<{ height?: number; bitrate?: number } | null>(null);
+  const [netSpeedMbps, setNetSpeedMbps] = useState<number | null>(null);
 
   // 换源加载状态
   const [isVideoLoading, setIsVideoLoading] = useState(true);
@@ -1203,25 +1208,7 @@ function PlayPageClient() {
     return filteredLines.join('\n');
   }
 
-  const formatTime = (seconds: number): string => {
-    if (seconds === 0) return '00:00';
-
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = Math.round(seconds % 60);
-
-    if (hours === 0) {
-      // 不到一小时，格式为 00:00
-      return `${minutes.toString().padStart(2, '0')}:${remainingSeconds
-        .toString()
-        .padStart(2, '0')}`;
-    } else {
-      // 超过一小时，格式为 00:00:00
-      return `${hours.toString().padStart(2, '0')}:${minutes
-        .toString()
-        .padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-    }
-  };
+  // 移除未使用的工具函数，避免eslint unused-vars警告
 
   class CustomHlsJsLoader extends Hls.DefaultConfig.loader {
     constructor(config: any) {
@@ -2235,6 +2222,33 @@ function PlayPageClient() {
         e.preventDefault();
       }
     }
+
+    // t 键 = 影院模式切换
+    if (e.key === 't' || e.key === 'T') {
+      setTheaterMode((prev) => !prev);
+      e.preventDefault();
+    }
+
+    // h 键 = 折叠/展开选集面板
+    if (e.key === 'h' || e.key === 'H') {
+      setIsEpisodeSelectorCollapsed((prev) => !prev);
+      e.preventDefault();
+    }
+
+    // m 键 = 静音/取消静音
+    if (e.key === 'm' || e.key === 'M') {
+      if (artPlayerRef.current) {
+        artPlayerRef.current.muted = !artPlayerRef.current.muted;
+        artPlayerRef.current.notice.show = artPlayerRef.current.muted ? '已静音' : '已取消静音';
+        e.preventDefault();
+      }
+    }
+
+    // ? 键 = 快捷键帮助
+    if (e.key === '?') {
+      setShowShortcutHelp(true);
+      e.preventDefault();
+    }
   };
 
   // ---------------------------------------------------------------------------
@@ -2795,6 +2809,46 @@ function PlayPageClient() {
                     hls.destroy();
                     break;
                 }
+              }
+            });
+
+            // 采集片段加载速度以显示网速徽章
+            hls.on(Hls.Events.FRAG_LOADED, function (_evt: any, data: any) {
+              try {
+                const bytes = data?.stats?.total || 0;
+                const tload = data?.stats?.tload || 0;
+                const tfirst = data?.stats?.tfirst || 0;
+                const ms = tload && tfirst ? (tload - tfirst) : 0;
+                if (bytes > 0 && ms > 0) {
+                  const mbps = (bytes * 8) / ms / 1000; // bytes->bits / ms -> Mbps
+                  setNetSpeedMbps(Number(mbps.toFixed(2)));
+                }
+              } catch (_) {
+                // ignore
+              }
+            });
+
+            // 采集清晰度与码率，用于徽章显示
+            hls.on(Hls.Events.LEVEL_SWITCHED, function (_evt: any, data: any) {
+              try {
+                const levelIndex = data?.level;
+                const lvl = typeof levelIndex === 'number' ? (hls as any).levels?.[levelIndex] : null;
+                if (lvl) {
+                  setQualityInfo({ height: (lvl as any).height, bitrate: (lvl as any).bitrate });
+                }
+              } catch (_) {
+                // ignore
+              }
+            });
+
+            hls.on(Hls.Events.MANIFEST_PARSED, function () {
+              try {
+                const cur = (hls as any).levels?.[(hls as any).currentLevel] || (hls as any).levels?.[0];
+                if (cur) {
+                  setQualityInfo({ height: (cur as any).height, bitrate: (cur as any).bitrate });
+                }
+              } catch (_) {
+                // ignore
               }
             });
           },
@@ -3761,7 +3815,7 @@ function PlayPageClient() {
       artPlayerRef.current.on('video:timeupdate', () => {
         const currentTime = artPlayerRef.current.currentTime || 0;
         const duration = artPlayerRef.current.duration || 0;
-        const now = performance.now(); // 使用performance.now()更精确
+        // 移除未使用变量，避免eslint未使用变量警告
 
         // 更新 SkipController 所需的时间信息
         setCurrentPlayTime(currentTime);
@@ -4125,14 +4179,14 @@ function PlayPageClient() {
           </div>
 
           <div
-            className={`grid gap-4 lg:h-[500px] xl:h-[650px] 2xl:h-[750px] transition-all duration-300 ease-in-out ${isEpisodeSelectorCollapsed
+            className={`grid gap-4 lg:h-[500px] xl:h-[650px] 2xl:h-[750px] transition-all duration-300 ease-in-out ${isEpisodeSelectorCollapsed || theaterMode
               ? 'grid-cols-1'
               : 'grid-cols-1 md:grid-cols-4'
               }`}
           >
             {/* 播放器 */}
             <div
-              className={`h-full transition-all duration-300 ease-in-out rounded-xl border border-white/0 dark:border-white/30 ${isEpisodeSelectorCollapsed ? 'col-span-1' : 'md:col-span-3'
+              className={`h-full transition-all duration-300 ease-in-out rounded-xl border border-white/0 dark:border-white/30 ${isEpisodeSelectorCollapsed || theaterMode ? 'col-span-1' : 'md:col-span-3'
                 }`}
             >
               <div className='relative w-full h-[300px] lg:h-full'>
@@ -4150,9 +4204,28 @@ function PlayPageClient() {
                   ?
                 </button>
 
+                {/* 清晰度/码率/网速徽章 - 播放器左上角下方 */}
+                <div className='absolute left-4 top-14 z-10 flex flex-wrap items-center gap-2'>
+                  {qualityInfo?.height && (
+                    <span className='px-2 py-1 text-xs rounded-full bg-black/40 text-white border border-white/30 backdrop-blur-sm'>
+                      {qualityInfo.height}p
+                    </span>
+                  )}
+                  {qualityInfo?.bitrate && (
+                    <span className='px-2 py-1 text-xs rounded-full bg-black/40 text-white border border-white/30 backdrop-blur-sm'>
+                      {(Math.round((qualityInfo.bitrate as number) / 1000))} kbps
+                    </span>
+                  )}
+                  {typeof netSpeedMbps === 'number' && (
+                    <span className='px-2 py-1 text-xs rounded-full bg-black/40 text-white border border-white/30 backdrop-blur-sm'>
+                      {netSpeedMbps.toFixed(2)} Mbps
+                    </span>
+                  )}
+                </div>
+
                 {/* 跳过设置按钮 - 播放器内右上角 */}
                 {currentSource && currentId && (
-                  <div className='absolute top-4 right-4 z-10'>
+                  <div className='absolute top-4 right-4 z-10 flex items-center gap-2'>
                     <button
                       onClick={() => setIsSkipSettingOpen(true)}
                       className='group flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-xl rounded-xl border border-white/30 hover:border-white/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] hover:shadow-[0_8px_32px_0_rgba(255,255,255,0.18)] hover:scale-105 transition-all duration-300 ease-out'
@@ -4178,6 +4251,25 @@ function PlayPageClient() {
                       <span className='text-sm font-medium text-white drop-shadow-lg transition-all duration-300 hidden sm:inline'>
                         跳过设置
                       </span>
+                    </button>
+                    <button
+                      onClick={() => setTheaterMode((prev) => !prev)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-xl border shadow-sm transition-all duration-300 ease-out ${theaterMode ? 'bg-emerald-500/80 text-white border-white/30 hover:bg-emerald-500' : 'bg-white/10 text-white border-white/30 hover:bg-white/20'}`}
+                      title='影院模式'
+                      style={{
+                        backdropFilter: 'blur(20px) saturate(180%)',
+                        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                      }}
+                    >
+                      <svg
+                        className='w-5 h-5'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 6h16M4 18h16M4 10h16M4 14h16' />
+                      </svg>
+                      <span className='text-sm font-medium'>影院模式</span>
                     </button>
                   </div>
                 )}
@@ -4737,6 +4829,9 @@ function PlayPageClient() {
               <li><span className='font-semibold'>↑ / ↓</span>：音量加 / 减</li>
               <li><span className='font-semibold'>M</span>：静音</li>
               <li><span className='font-semibold'>F</span>：全屏</li>
+              <li><span className='font-semibold'>T</span>：影院模式</li>
+              <li><span className='font-semibold'>H</span>：折叠/展开选集面板</li>
+              <li><span className='font-semibold'>?</span>：显示快捷键帮助</li>
             </ul>
             <div className='flex items-center justify-end'>
               <button
