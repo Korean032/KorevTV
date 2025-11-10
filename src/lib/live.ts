@@ -68,7 +68,7 @@ export async function refreshLiveChannels(liveInfo: {
     },
   });
   const data = await response.text();
-  const result = parseM3U(liveInfo.key, data);
+  const result = parseUniversalPlaylist(liveInfo.key, liveInfo.url, data);
   const epgUrl = liveInfo.epg || result.tvgUrl;
   const epgs = await parseEpg(epgUrl, liveInfo.ua || defaultUA, result.channels.map(channel => channel.tvgId).filter(tvgId => tvgId));
   cachedLiveChannels[liveInfo.key] = {
@@ -271,6 +271,137 @@ function parseM3U(sourceKey: string, m3uContent: string): {
   }
 
   return { tvgUrl, channels };
+}
+
+/**
+ * 解析纯文本频道列表（通用TXT格式）
+ * 支持格式示例：
+ *  - 央视一套,http://example.com/live.m3u8
+ *  - 央视一套#http://example.com/live.m3u8
+ *  - 综艺#快乐大本营#http://example.com/live.m3u8 （带分组）
+ */
+function parsePlainText(sourceKey: string, text: string): {
+  tvgUrl: string;
+  channels: {
+    id: string;
+    tvgId: string;
+    name: string;
+    logo: string;
+    group: string;
+    url: string;
+  }[];
+} {
+  const channels: {
+    id: string;
+    tvgId: string;
+    name: string;
+    logo: string;
+    group: string;
+    url: string;
+  }[] = [];
+
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+  let idx = 0;
+  for (const line of lines) {
+    // 支持 "group#name#url" 或 "name#url" 或 "name,url"
+    const hashParts = line.split('#').map(s => s.trim());
+    let group = '无分组';
+    let name = '';
+    let url = '';
+
+    if (hashParts.length === 3) {
+      group = hashParts[0];
+      name = hashParts[1];
+      url = hashParts[2];
+    } else if (hashParts.length === 2) {
+      name = hashParts[0];
+      url = hashParts[1];
+    } else {
+      // 尝试逗号分隔
+      const commaParts = line.split(',').map(s => s.trim());
+      if (commaParts.length >= 2) {
+        name = commaParts[0];
+        url = commaParts.slice(1).join(','); // 允许URL中包含逗号
+      }
+    }
+
+    if (!name || !url || !/^https?:\/\//i.test(url)) continue;
+
+    const tvgId = name.replace(/\s+/g, '').toLowerCase();
+    channels.push({
+      id: `${sourceKey}-${idx++}`,
+      tvgId,
+      name,
+      logo: '',
+      group,
+      url,
+    });
+  }
+
+  return { tvgUrl: '', channels };
+}
+
+/**
+ * 解析 JSON 频道列表
+ * 支持格式示例：
+ * { "channels": [{ "name": "CCTV1", "url": "http://...", "logo": "...", "group": "央视", "tvgId": "cctv1" }]}
+ */
+function parseJsonPlaylist(sourceKey: string, text: string): {
+  tvgUrl: string;
+  channels: {
+    id: string;
+    tvgId: string;
+    name: string;
+    logo: string;
+    group: string;
+    url: string;
+  }[];
+} {
+  try {
+    const obj = JSON.parse(text);
+    const channelsInput = Array.isArray(obj) ? obj : obj.channels;
+    if (!Array.isArray(channelsInput)) return { tvgUrl: '', channels: [] };
+    const channels = channelsInput.map((c: any, idx: number) => ({
+      id: `${sourceKey}-${idx}`,
+      tvgId: (c.tvgId || c.tvg_id || c.id || c.name || '').toString(),
+      name: (c.name || c.title || '').toString(),
+      logo: (c.logo || '').toString(),
+      group: (c.group || c.category || '无分组').toString(),
+      url: (c.url || c.link || '').toString(),
+    })).filter((c: any) => c.name && c.url && /^https?:\/\//i.test(c.url));
+    const tvgUrl = (obj.tvgUrl || obj.epg || obj["url-tvg"] || obj["x-tvg-url"] || '') as string;
+    return { tvgUrl: tvgUrl || '', channels };
+  } catch {
+    return { tvgUrl: '', channels: [] };
+  }
+}
+
+/**
+ * 通用播放列表解析：自动判定 M3U / JSON / TXT
+ */
+function parseUniversalPlaylist(sourceKey: string, sourceUrl: string, raw: string): {
+  tvgUrl: string;
+  channels: {
+    id: string;
+    tvgId: string;
+    name: string;
+    logo: string;
+    group: string;
+    url: string;
+  }[];
+} {
+  const head = raw.slice(0, 100).trim();
+  const lowerUrl = (sourceUrl || '').toLowerCase();
+  if (head.startsWith('#EXTM3U') || lowerUrl.endsWith('.m3u') || lowerUrl.endsWith('.m3u8')) {
+    return parseM3U(sourceKey, raw);
+  }
+  // 简单判断 JSON
+  if ((head.startsWith('{') && raw.trim().endsWith('}')) || (head.startsWith('[') && raw.trim().endsWith(']')) || lowerUrl.endsWith('.json')) {
+    const parsed = parseJsonPlaylist(sourceKey, raw);
+    if (parsed.channels.length > 0) return parsed;
+  }
+  // 作为纯文本行解析
+  return parsePlainText(sourceKey, raw);
 }
 
 // utils/urlResolver.js
