@@ -5215,9 +5215,13 @@ function PlayPageClient() {
                         handleToggleFavorite();
                       }}
                       className='group relative flex-shrink-0 transition-all duration-300 hover:scale-110'
+                      title='收藏此影片'
                     >
                       <div className='absolute inset-0 bg-gradient-to-r from-red-400 to-pink-400 rounded-full opacity-0 group-hover:opacity-20 blur-lg transition-opacity duration-300'></div>
                       <FavoriteIcon filled={favorited} />
+                      <span className='ml-1 text-xs text-gray-700 dark:text-gray-300 hidden sm:inline'>
+                        收藏
+                      </span>
                     </button>
 
                     {/* 网盘资源按钮 */}
@@ -5251,7 +5255,7 @@ function PlayPageClient() {
                             搜索中...
                           </span>
                         ) : netdiskTotal > 0 ? (
-                          <span>{netdiskTotal}个资源</span>
+                          <span>网盘资源（{netdiskTotal}）</span>
                         ) : (
                           <span>网盘资源</span>
                         )}
@@ -5262,21 +5266,16 @@ function PlayPageClient() {
               </div>
 
               {/* 关键信息行 */}
-              <div className='flex flex-wrap items-center gap-3 text-base mb-4 opacity-80 flex-shrink-0'>
-                {detail?.class && (
-                  <span className='text-green-600 font-semibold'>
-                    {detail.class}
-                  </span>
+              <div className='flex flex-wrap items-center gap-2 text-base mb-4 opacity-90 flex-shrink-0 chips-unify'>
+                {detail?.type_name && (
+                  <span title='类型'>{detail.type_name}</span>
                 )}
                 {(detail?.year || videoYear) && (
-                  <span>{detail?.year || videoYear}</span>
+                  <span title='年份'>{detail?.year || videoYear}</span>
                 )}
                 {detail?.source_name && (
-                  <span className='border border-gray-500/60 px-2 py-[1px] rounded'>
-                    {detail.source_name}
-                  </span>
+                  <span title='来源'>{detail.source_name}</span>
                 )}
-                {detail?.type_name && <span>{detail.type_name}</span>}
               </div>
 
               {/* 详细信息（豆瓣或bangumi） */}
@@ -5558,6 +5557,14 @@ function PlayPageClient() {
                         </div>
                       </div>
                     )}
+                  </div>
+                )}
+
+              {/* 评分与详细信息空态 */}
+              {!(bangumiDetails || movieDetails) &&
+                !(loadingMovieDetails || loadingBangumiDetails) && (
+                  <div className='mb-4 text-sm text-gray-500 dark:text-gray-400'>
+                    暂无评分与详细信息
                   </div>
                 )}
 
