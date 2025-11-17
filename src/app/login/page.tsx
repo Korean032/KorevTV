@@ -264,6 +264,7 @@ function LoginPageClient() {
         animatedMode='hover'
         tint='blue'
       >
+        <span aria-hidden className='title-sweep rounded-3xl' />
         {/* 装饰性光效 */}
         <div className='absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-purple-400/30 to-pink-400/30 rounded-full blur-3xl animate-pulse' />
         <div className='absolute -bottom-20 -right-20 w-40 h-40 bg-gradient-to-br from-blue-400/30 to-cyan-400/30 rounded-full blur-3xl animate-pulse' style={{ animationDelay: '1s' }} />
