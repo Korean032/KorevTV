@@ -69,10 +69,10 @@ function LoginPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState('wenxi');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [shouldAskUsername, setShouldAskUsername] = useState(false);
+  const [shouldAskUsername, setShouldAskUsername] = useState(true);
   const [bingWallpaper, setBingWallpaper] = useState<string>('');
   const [showPassword, setShowPassword] = useState(false);
   const [capsLockOn, setCapsLockOn] = useState(false);
@@ -116,10 +116,7 @@ function LoginPageClient() {
 
   // 在客户端挂载后设置配置
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storageType = (window as any).RUNTIME_CONFIG?.STORAGE_TYPE;
-      setShouldAskUsername(storageType && storageType !== 'localstorage');
-    }
+    setShouldAskUsername(true);
   }, []);
 
   useEffect(() => {

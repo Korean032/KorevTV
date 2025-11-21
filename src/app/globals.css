@@ -458,28 +458,52 @@ div[data-media-provider] video {
 }
 
 .lgx-tint-blue {
-  background: linear-gradient(180deg, rgba(164, 203, 255, 0.35), rgba(185, 255, 248, 0.25));
+  background: linear-gradient(
+    180deg,
+    rgba(164, 203, 255, 0.35),
+    rgba(185, 255, 248, 0.25)
+  );
   border-color: rgba(255, 255, 255, 0.35);
 }
 .lgx-tint-neutral {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.2));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.35),
+    rgba(255, 255, 255, 0.2)
+  );
   border-color: rgba(255, 255, 255, 0.35);
 }
 .lgx-tint-pink {
-  background: linear-gradient(180deg, rgba(255, 214, 214, 0.35), rgba(255, 214, 214, 0.2));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 214, 214, 0.35),
+    rgba(255, 214, 214, 0.2)
+  );
   border-color: rgba(255, 255, 255, 0.35);
 }
 
 html.dark .lgx-tint-blue {
-  background: linear-gradient(180deg, rgba(31, 41, 55, 0.55), rgba(31, 41, 55, 0.4));
+  background: linear-gradient(
+    180deg,
+    rgba(31, 41, 55, 0.55),
+    rgba(31, 41, 55, 0.4)
+  );
   border-color: rgba(75, 85, 99, 0.4);
 }
 html.dark .lgx-tint-neutral {
-  background: linear-gradient(180deg, rgba(31, 41, 55, 0.55), rgba(31, 41, 55, 0.4));
+  background: linear-gradient(
+    180deg,
+    rgba(31, 41, 55, 0.55),
+    rgba(31, 41, 55, 0.4)
+  );
   border-color: rgba(75, 85, 99, 0.4);
 }
 html.dark .lgx-tint-pink {
-  background: linear-gradient(180deg, rgba(31, 41, 55, 0.55), rgba(31, 41, 55, 0.4));
+  background: linear-gradient(
+    180deg,
+    rgba(31, 41, 55, 0.55),
+    rgba(31, 41, 55, 0.4)
+  );
   border-color: rgba(75, 85, 99, 0.4);
 }
 
@@ -489,7 +513,11 @@ html.dark .lgx-tint-pink {
   left: -10%;
   width: 55%;
   height: 60%;
-  background: radial-gradient(ellipse at top left, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0) 60%);
+  background: radial-gradient(
+    ellipse at top left,
+    rgba(255, 255, 255, 0.65) 0%,
+    rgba(255, 255, 255, 0) 60%
+  );
   mix-blend-mode: screen;
   opacity: 0.45;
   pointer-events: none;
@@ -499,7 +527,8 @@ html.dark .lgx-tint-pink {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -2px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -2px 8px rgba(0, 0, 0, 0.12);
   pointer-events: none;
 }
 /*. title sweep for card title capsules */
@@ -522,28 +551,13 @@ html.dark .lgx-tint-pink {
   animation: title-sweep-move 4.8s ease-in-out infinite;
 }
 @keyframes title-sweep-move {
-  0% { background-position: -120% 0; }
-  50% { background-position: 120% 0; }
-  100% { background-position: -120% 0; }
-}
-
-/* 滚动字幕（频道名） */
-.marquee {
-  position: relative;
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 2rem;
-  will-change: transform;
-  animation: marquee-move 12s linear infinite;
-}
-.marquee-item {
-  display: inline-block;
-  white-space: nowrap;
-}
-@keyframes marquee-move {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .marquee { animation: none; }
+  0% {
+    background-position: -120% 0;
+  }
+  50% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: -120% 0;
+  }
 }

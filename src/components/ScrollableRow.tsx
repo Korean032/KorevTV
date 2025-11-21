@@ -116,7 +116,7 @@ function ScrollableRow({
     >
       <div
         ref={containerRef}
-        className='flex space-x-6 overflow-x-auto scrollbar-hide py-1 sm:py-2 pb-12 sm:pb-14 pl-16 pr-16 sm:pl-20 sm:pr-20'
+        className='flex space-x-6 overflow-x-auto scrollbar-hide py-1 sm:py-2 pb-12 sm:pb-14 px-4 sm:px-6'
         onScroll={checkScroll}
       >
         {enableAnimation ? (
@@ -129,24 +129,23 @@ function ScrollableRow({
       </div>
       {showLeftScroll && (
         <div
-          className={`hidden sm:flex absolute left-0 top-0 bottom-0 w-16 items-center justify-center z-[9999] transition-opacity duration-200 ${
+          className={`hidden sm:flex absolute left-0 top-0 bottom-0 w-16 items-center justify-center z-[600] transition-opacity duration-200 ${
             isHovered ? 'opacity-100' : 'opacity-0'
           }`}
           style={{
             background: 'transparent',
-            pointerEvents: 'none',
-            zIndex: 2147483647,
+            pointerEvents: 'none', // 允许点击穿透
           }}
         >
-        <div
-          className='absolute inset-0 flex items-center justify-center'
-          style={{
-            top: '50%',
-            left: '0.75rem',
-            pointerEvents: 'auto',
-            transform: 'translateY(-50%)',
-          }}
-        >
+          <div
+            className='absolute inset-0 flex items-center justify-center'
+            style={{
+              top: '40%',
+              bottom: '60%',
+              left: '-4.5rem',
+              pointerEvents: 'auto',
+            }}
+          >
             <button
               onClick={handleScrollLeftClick}
               className='w-12 h-12 rounded-full transition-transform hover:scale-105'
@@ -167,24 +166,23 @@ function ScrollableRow({
 
       {showRightScroll && (
         <div
-          className={`hidden sm:flex absolute right-0 top-0 bottom-0 w-16 items-center justify-center z-[9999] transition-opacity duration-200 ${
+          className={`hidden sm:flex absolute right-0 top-0 bottom-0 w-16 items-center justify-center z-[600] transition-opacity duration-200 ${
             isHovered ? 'opacity-100' : 'opacity-0'
           }`}
           style={{
             background: 'transparent',
-            pointerEvents: 'none',
-            zIndex: 2147483647,
+            pointerEvents: 'none', // 允许点击穿透
           }}
         >
-        <div
-          className='absolute inset-0 flex items-center justify-center'
-          style={{
-            top: '50%',
-            right: '0.75rem',
-            pointerEvents: 'auto',
-            transform: 'translateY(-50%)',
-          }}
-        >
+          <div
+            className='absolute inset-0 flex items-center justify-center'
+            style={{
+              top: '40%',
+              bottom: '60%',
+              right: '-4.5rem',
+              pointerEvents: 'auto',
+            }}
+          >
             <button
               onClick={handleScrollRightClick}
               className='w-12 h-12 rounded-full transition-transform hover:scale-105'
