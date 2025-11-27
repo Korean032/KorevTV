@@ -4996,14 +4996,13 @@ function PlayPageClient() {
                 {/* 质量与实时指标面板 */}
                 {showMetricsPanel && (
                   <LiquidGlassContainer
-                    className='absolute left-4 top-14 min-w-[240px] max-w-[320px] p-3'
+                    className='absolute left-4 top-14 min-w-[240px] max-w-[320px] p-3 z-[2147483647]'
                     roundedClass='rounded-xl'
                     intensity='high'
                     shadow='xl'
                     border='subtle'
                     animatedMode='hover'
                     tint='blue'
-                    style={{ zIndex: 2147483647 } as any}
                   >
                     <div className='mb-2 text-xs opacity-80'>
                       模式：{qualityMode === 'auto' ? '自动档' : '已锁定'}
@@ -5230,45 +5229,61 @@ function PlayPageClient() {
                       className='group flex items-center gap-2'
                       title='跳过设置'
                     >
-                      <LiquidGlassContainer className='px-4 py-2' roundedClass='rounded-xl' intensity='high' shadow='xl' border='subtle' animatedMode='hover' tint='blue'>
-                      <svg
-                        className='w-5 h-5 text-white drop-shadow-lg group-hover:rotate-90 transition-all duration-300'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
+                      <LiquidGlassContainer
+                        className='px-4 py-2'
+                        roundedClass='rounded-xl'
+                        intensity='high'
+                        shadow='xl'
+                        border='subtle'
+                        animatedMode='hover'
+                        tint='blue'
                       >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4'
-                        />
-                      </svg>
-                      <span className='text-sm font-medium text-white drop-shadow-lg transition-all duration-300 hidden sm:inline'>
-                        跳过设置
-                      </span>
+                        <svg
+                          className='w-5 h-5 text-white drop-shadow-lg group-hover:rotate-90 transition-all duration-300'
+                          fill='none'
+                          stroke='currentColor'
+                          viewBox='0 0 24 24'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4'
+                          />
+                        </svg>
+                        <span className='text-sm font-medium text-white drop-shadow-lg transition-all duration-300 hidden sm:inline'>
+                          跳过设置
+                        </span>
                       </LiquidGlassContainer>
                     </button>
                     <button
                       onClick={() => setTheaterMode((prev) => !prev)}
-                      className="flex items-center gap-2"
+                      className='flex items-center gap-2'
                       title='影院模式'
                     >
-                      <LiquidGlassContainer className='px-3 py-2' roundedClass='rounded-xl' intensity='high' shadow='xl' border='subtle' animatedMode='hover' tint='blue'>
-                      <svg
-                        className='w-5 h-5'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
+                      <LiquidGlassContainer
+                        className='px-3 py-2'
+                        roundedClass='rounded-xl'
+                        intensity='high'
+                        shadow='xl'
+                        border='subtle'
+                        animatedMode='hover'
+                        tint='blue'
                       >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M4 6h16M4 18h16M4 10h16M4 14h16'
-                        />
-                      </svg>
-                      <span className='text-sm font-medium'>影院模式</span>
+                        <svg
+                          className='w-5 h-5'
+                          fill='none'
+                          stroke='currentColor'
+                          viewBox='0 0 24 24'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M4 6h16M4 18h16M4 10h16M4 14h16'
+                          />
+                        </svg>
+                        <span className='text-sm font-medium'>影院模式</span>
                       </LiquidGlassContainer>
                     </button>
                   </div>
@@ -5376,7 +5391,16 @@ function PlayPageClient() {
         <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
           {/* 文字区 */}
           <div className='md:col-span-3'>
-            <LiquidGlassContainer className='p-6 flex flex-col min-h-0' roundedClass='rounded-2xl' intensity='high' shadow='xl' border='subtle' animated={false} animatedMode='hover' tint='blue'>
+            <LiquidGlassContainer
+              className='p-6 flex flex-col min-h-0'
+              roundedClass='rounded-2xl'
+              intensity='high'
+              shadow='xl'
+              border='subtle'
+              animated={false}
+              animatedMode='hover'
+              tint='blue'
+            >
               {/* 标题 */}
               <div className='mb-4 flex-shrink-0'>
                 <div className='flex flex-col md:flex-row md:items-center gap-3'>
@@ -5482,17 +5506,23 @@ function PlayPageClient() {
                                 Bangumi评分:{' '}
                               </span>
                               <div className='flex items-center group relative overflow-hidden'>
-                                
                                 <span className='relative text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 dark:from-pink-400 dark:via-rose-400 dark:to-pink-400 font-bold text-lg transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_2px_8px_rgba(236,72,153,0.5)]'>
                                   {bangumiDetails.rating.score}
                                 </span>
-                                <span className='ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-black/10 dark:bg-white/10 border border-white/20 text-gray-800 dark:text-gray-200'>Bangumi</span>
+                                <span className='ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-black/10 dark:bg-white/10 border border-white/20 text-gray-800 dark:text-gray-200'>
+                                  Bangumi
+                                </span>
                                 <div className='flex ml-2 gap-0.5'>
                                   {[...Array(5)].map((_, i) => (
                                     <svg
                                       key={i}
                                       className={`w-4 h-4 transition-all duration-300 group-hover:scale-110 ${
-                                        i < Math.floor(parseFloat(bangumiDetails.rating.score) / 2)
+                                        i <
+                                        Math.floor(
+                                          parseFloat(
+                                            bangumiDetails.rating.score
+                                          ) / 2
+                                        )
                                           ? 'text-yellow-500'
                                           : 'text-gray-300 dark:text-gray-600'
                                       }`}
@@ -5517,11 +5547,15 @@ function PlayPageClient() {
                                   : [info.value];
                                 return (
                                   <div key={index} className='mt-2'>
-                                    <span className='font-semibold text-gray-700 dark:text-gray-300 mr-2'>导演:</span>
+                                    <span className='font-semibold text-gray-700 dark:text-gray-300 mr-2'>
+                                      导演:
+                                    </span>
                                     <span className='inline-flex flex-wrap gap-2 chips-unify'>
-                                      {list.slice(0, 6).map((name: any, i: number) => (
-                                        <span key={i}>{String(name)}</span>
-                                      ))}
+                                      {list
+                                        .slice(0, 6)
+                                        .map((name: any, i: number) => (
+                                          <span key={i}>{String(name)}</span>
+                                        ))}
                                     </span>
                                   </div>
                                 );
@@ -5532,11 +5566,15 @@ function PlayPageClient() {
                                   : [info.value];
                                 return (
                                   <div key={index} className='mt-2'>
-                                    <span className='font-semibold text-gray-700 dark:text-gray-300 mr-2'>制作:</span>
+                                    <span className='font-semibold text-gray-700 dark:text-gray-300 mr-2'>
+                                      制作:
+                                    </span>
                                     <span className='inline-flex flex-wrap gap-2 chips-unify'>
-                                      {list.slice(0, 6).map((name: any, i: number) => (
-                                        <span key={i}>{String(name)}</span>
-                                      ))}
+                                      {list
+                                        .slice(0, 6)
+                                        .map((name: any, i: number) => (
+                                          <span key={i}>{String(name)}</span>
+                                        ))}
                                     </span>
                                   </div>
                                 );
@@ -5588,7 +5626,6 @@ function PlayPageClient() {
                                 豆瓣评分:{' '}
                               </span>
                               <div className='flex items-center group relative overflow-hidden'>
-                                
                                 <span className='relative text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-amber-600 to-yellow-600 dark:from-yellow-400 dark:via-amber-400 dark:to-yellow-400 font-bold text-lg transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_2px_8px_rgba(251,191,36,0.5)]'>
                                   {movieDetails.rate}
                                 </span>
@@ -5603,14 +5640,19 @@ function PlayPageClient() {
                                     豆瓣
                                   </a>
                                 ) : (
-                                  <span className='ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-black/10 dark:bg-white/10 border border-white/20 text-gray-800 dark:text-gray-200'>豆瓣</span>
+                                  <span className='ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-black/10 dark:bg-white/10 border border-white/20 text-gray-800 dark:text-gray-200'>
+                                    豆瓣
+                                  </span>
                                 )}
                                 <div className='flex ml-2 gap-0.5'>
                                   {[...Array(5)].map((_, i) => (
                                     <svg
                                       key={i}
                                       className={`w-4 h-4 transition-all duration-300 group-hover:scale-110 ${
-                                        i < Math.floor(parseFloat(movieDetails.rate) / 2)
+                                        i <
+                                        Math.floor(
+                                          parseFloat(movieDetails.rate) / 2
+                                        )
                                           ? 'text-yellow-500'
                                           : 'text-gray-300 dark:text-gray-600'
                                       }`}
@@ -5633,9 +5675,11 @@ function PlayPageClient() {
                                 导演:
                               </span>
                               <span className='inline-flex flex-wrap gap-2 chips-unify'>
-                                {movieDetails.directors.slice(0, 6).map((n: string, i: number) => (
-                                  <span key={i}>{n}</span>
-                                ))}
+                                {movieDetails.directors
+                                  .slice(0, 6)
+                                  .map((n: string, i: number) => (
+                                    <span key={i}>{n}</span>
+                                  ))}
                               </span>
                             </div>
                           )}
@@ -5648,9 +5692,11 @@ function PlayPageClient() {
                                 编剧:
                               </span>
                               <span className='inline-flex flex-wrap gap-2 chips-unify'>
-                                {movieDetails.screenwriters.slice(0, 6).map((n: string, i: number) => (
-                                  <span key={i}>{n}</span>
-                                ))}
+                                {movieDetails.screenwriters
+                                  .slice(0, 6)
+                                  .map((n: string, i: number) => (
+                                    <span key={i}>{n}</span>
+                                  ))}
                               </span>
                             </div>
                           )}
@@ -5662,7 +5708,10 @@ function PlayPageClient() {
                               主演:
                             </span>
                             <span className='inline-flex flex-wrap gap-2 chips-unify'>
-                              {(showAllCast ? movieDetails.cast : movieDetails.cast.slice(0, 10)).map((n: string, i: number) => (
+                              {(showAllCast
+                                ? movieDetails.cast
+                                : movieDetails.cast.slice(0, 10)
+                              ).map((n: string, i: number) => (
                                 <span key={i}>{n}</span>
                               ))}
                             </span>
@@ -5670,7 +5719,9 @@ function PlayPageClient() {
                               <button
                                 onClick={() => setShowAllCast((v) => !v)}
                                 className='ml-2 px-2 py-0.5 rounded-full text-xs border border-white/30 bg-black/10 text-gray-800 dark:bg-white/10 dark:text-gray-200 backdrop-blur-sm'
-                                aria-label={showAllCast ? '收起主演' : '展开全部主演'}
+                                aria-label={
+                                  showAllCast ? '收起主演' : '展开全部主演'
+                                }
                               >
                                 {showAllCast ? '收起' : '展开全部'}
                               </button>
@@ -5705,13 +5756,19 @@ function PlayPageClient() {
                                 <span key={index}>{language}</span>
                               ))}
                           {movieDetails.episodes && (
-                            <span className='chips-unify'>共{movieDetails.episodes}集</span>
+                            <span className='chips-unify'>
+                              共{movieDetails.episodes}集
+                            </span>
                           )}
                           {movieDetails.episode_length && (
-                            <span className='chips-unify'>单集{movieDetails.episode_length}分钟</span>
+                            <span className='chips-unify'>
+                              单集{movieDetails.episode_length}分钟
+                            </span>
                           )}
                           {movieDetails.movie_duration && (
-                            <span className='chips-unify'>{movieDetails.movie_duration}分钟</span>
+                            <span className='chips-unify'>
+                              {movieDetails.movie_duration}分钟
+                            </span>
                           )}
                         </div>
                       </div>
@@ -5754,9 +5811,13 @@ function PlayPageClient() {
               {/* 剧情简介 */}
               {(detail?.desc || bangumiDetails?.summary) && (
                 <div className='mt-0 text-base leading-relaxed opacity-90 flex-1 min-h-0'>
-                  <div className='text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1'>剧情简介</div>
+                  <div className='text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1'>
+                    剧情简介
+                  </div>
                   <div
-                    className={`relative ${showFullDesc ? '' : 'max-h-40 overflow-hidden'} pr-2`}
+                    className={`relative ${
+                      showFullDesc ? '' : 'max-h-40 overflow-hidden'
+                    } pr-2`}
                     style={{ whiteSpace: 'pre-line' }}
                   >
                     {bangumiDetails?.summary || detail?.desc}
@@ -5768,13 +5829,19 @@ function PlayPageClient() {
                     <button
                       onClick={() => setShowFullDesc((v) => !v)}
                       className='capsule-glow px-3 py-1 rounded-full text-xs border border-white/30 bg-black/10 text-gray-800 dark:bg-white/10 dark:text-gray-200 backdrop-blur-sm'
-                      aria-label={showFullDesc ? '收起剧情简介' : '展开剧情简介'}
+                      aria-label={
+                        showFullDesc ? '收起剧情简介' : '展开剧情简介'
+                      }
                     >
                       {showFullDesc ? '收起' : '展开'}
                     </button>
                     {videoDoubanId !== 0 && (
                       <a
-                        href={bangumiDetails ? `https://bgm.tv/subject/${videoDoubanId}` : `https://movie.douban.com/subject/${videoDoubanId}`}
+                        href={
+                          bangumiDetails
+                            ? `https://bgm.tv/subject/${videoDoubanId}`
+                            : `https://movie.douban.com/subject/${videoDoubanId}`
+                        }
                         target='_blank'
                         rel='noopener noreferrer'
                         className='capsule-glow px-2.5 py-1 rounded-full text-xs border border-white/30 bg-black/10 text-gray-800 dark:bg-white/10 dark:text-gray-200 backdrop-blur-sm'
@@ -5789,7 +5856,15 @@ function PlayPageClient() {
 
               {/* 网盘资源区域 */}
               <div id='netdisk-section' className='mt-6'>
-                <LiquidGlassContainer className='pt-6 px-4 pb-4' roundedClass='rounded-2xl' intensity='high' shadow='xl' border='subtle' animatedMode='hover' tint='blue'>
+                <LiquidGlassContainer
+                  className='pt-6 px-4 pb-4'
+                  roundedClass='rounded-2xl'
+                  intensity='high'
+                  shadow='xl'
+                  border='subtle'
+                  animatedMode='hover'
+                  tint='blue'
+                >
                   <div className='mb-4'>
                     <h3 className='text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2'>
                       📁 网盘资源
@@ -5832,80 +5907,88 @@ function PlayPageClient() {
           {/* 封面展示 */}
           <div className='hidden md:block md:col-span-1 md:order-first'>
             <div className='pl-0 py-4 pr-6'>
-              <LiquidGlassContainer className='p-2' roundedClass='rounded-xl' intensity='high' shadow='xl' border='subtle' animatedMode='hover' tint='blue'>
-              <div className='group relative bg-gray-300 dark:bg-gray-700 aspect-[2/3] flex items-center justify-center rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.02]'>
-                {videoCover || bangumiDetails?.images?.large ? (
-                  <>
-                    {/* 渐变光泽动画层 */}
-                    <div
-                      className='absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10'
-                      style={{
-                        background:
-                          'linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.15) 45%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.15) 55%, transparent 70%)',
-                        backgroundSize: '200% 100%',
-                        animation: 'shimmer 2.5s ease-in-out infinite',
-                      }}
-                    />
+              <LiquidGlassContainer
+                className='p-2'
+                roundedClass='rounded-xl'
+                intensity='high'
+                shadow='xl'
+                border='subtle'
+                animatedMode='hover'
+                tint='blue'
+              >
+                <div className='group relative bg-gray-300 dark:bg-gray-700 aspect-[2/3] flex items-center justify-center rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.02]'>
+                  {videoCover || bangumiDetails?.images?.large ? (
+                    <>
+                      {/* 渐变光泽动画层 */}
+                      <div
+                        className='absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10'
+                        style={{
+                          background:
+                            'linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.15) 45%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.15) 55%, transparent 70%)',
+                          backgroundSize: '200% 100%',
+                          animation: 'shimmer 2.5s ease-in-out infinite',
+                        }}
+                      />
 
-                    <img
-                      src={processImageUrl(
-                        bangumiDetails?.images?.large || videoCover
-                      )}
-                      alt={videoTitle}
-                      className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
-                    />
+                      <img
+                        src={processImageUrl(
+                          bangumiDetails?.images?.large || videoCover
+                        )}
+                        alt={videoTitle}
+                        className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
+                      />
 
-                    {/* 悬浮遮罩 */}
-                    <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500'></div>
+                      {/* 悬浮遮罩 */}
+                      <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500'></div>
 
-                    {/* 链接按钮（bangumi或豆瓣） */}
-                    {videoDoubanId !== 0 && (
-                      <a
-                        href={
-                          bangumiDetails
-                            ? `https://bgm.tv/subject/${videoDoubanId.toString()}`
-                            : `https://movie.douban.com/subject/${videoDoubanId.toString()}`
-                        }
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='absolute top-3 left-3 z-20'
-                      >
-                        <div
-                          className={`relative ${
+                      {/* 链接按钮（bangumi或豆瓣） */}
+                      {videoDoubanId !== 0 && (
+                        <a
+                          href={
                             bangumiDetails
-                              ? 'bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600'
-                              : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
-                          } text-white text-xs font-bold w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 ease-out hover:scale-110 group/link`}
+                              ? `https://bgm.tv/subject/${videoDoubanId.toString()}`
+                              : `https://movie.douban.com/subject/${videoDoubanId.toString()}`
+                          }
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          className='absolute top-3 left-3 z-20'
                         >
                           <div
-                            className={`absolute inset-0 ${
-                              bangumiDetails ? 'bg-pink-400' : 'bg-green-400'
-                            } rounded-full opacity-0 group-hover/link:opacity-30 blur transition-opacity duration-300`}
-                          ></div>
-                          <svg
-                            width='18'
-                            height='18'
-                            viewBox='0 0 24 24'
-                            fill='none'
-                            stroke='currentColor'
-                            strokeWidth='2'
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            className='relative z-10'
+                            className={`relative ${
+                              bangumiDetails
+                                ? 'bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600'
+                                : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+                            } text-white text-xs font-bold w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 ease-out hover:scale-110 group/link`}
                           >
-                            <path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'></path>
-                            <path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'></path>
-                          </svg>
-                        </div>
-                      </a>
-                    )}
-                  </>
-                ) : (
-                  <span className='text-gray-600 dark:text-gray-400'>
-                    封面图片
-                  </span>
-                )}
-              </div>
+                            <div
+                              className={`absolute inset-0 ${
+                                bangumiDetails ? 'bg-pink-400' : 'bg-green-400'
+                              } rounded-full opacity-0 group-hover/link:opacity-30 blur transition-opacity duration-300`}
+                            ></div>
+                            <svg
+                              width='18'
+                              height='18'
+                              viewBox='0 0 24 24'
+                              fill='none'
+                              stroke='currentColor'
+                              strokeWidth='2'
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              className='relative z-10'
+                            >
+                              <path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'></path>
+                              <path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'></path>
+                            </svg>
+                          </div>
+                        </a>
+                      )}
+                    </>
+                  ) : (
+                    <span className='text-gray-600 dark:text-gray-400'>
+                      封面图片
+                    </span>
+                  )}
+                </div>
               </LiquidGlassContainer>
             </div>
           </div>
@@ -5924,7 +6007,8 @@ function PlayPageClient() {
           display: inline-flex;
           align-items: center;
           backdrop-filter: saturate(180%) blur(10px);
-          transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+          transition: transform 150ms ease, box-shadow 150ms ease,
+            filter 150ms ease;
         }
         :global(html.dark) .chips-unify span {
           background: rgba(255, 255, 255, 0.08);
@@ -5934,22 +6018,25 @@ function PlayPageClient() {
         .chips-unify span:hover {
           filter: brightness(1.06);
           transform: translateY(-1px) scale(1.03);
-          box-shadow: 0 6px 14px rgba(0,0,0,0.12), 0 0 16px rgba(255,255,255,0.18);
+          box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12),
+            0 0 16px rgba(255, 255, 255, 0.18);
         }
-        .capsule-glow { position: relative; }
+        .capsule-glow {
+          position: relative;
+        }
         .capsule-glow::after {
           content: '';
           position: absolute;
           inset: -2px;
           border-radius: inherit;
           pointer-events: none;
-          box-shadow: 0 0 0 rgba(0,0,0,0);
+          box-shadow: 0 0 0 rgba(0, 0, 0, 0);
           opacity: 0;
           transition: opacity 180ms ease, box-shadow 180ms ease;
         }
         .capsule-glow:hover::after {
           opacity: 1;
-          box-shadow: 0 0 18px rgba(99,102,241,0.28);
+          box-shadow: 0 0 18px rgba(99, 102, 241, 0.28);
         }
       `}</style>
       <button
